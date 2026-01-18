@@ -41,21 +41,24 @@ class PadInput {
         bool isConnected(); // Pomocnicza funkcja sprawdzająca czy pad działa
         void runMaskWizard();
 
-        ButtonState getButtonState(char* buttonId);
-        AxisState getAxisState(char* axisId);
+        ButtonState* getButtonState(const char* buttonName);
+        ButtonState* getDpadState(const char* dpadName);
+        AxisState* getAxisState(const char* axisName);
 
     private:
         HANDLE hidDeviceObject = INVALID_HANDLE_VALUE; // Uchwyt do pliku urządzenia
         BYTE inputBuffer[64] = {0};   // Bufor na dane z pada
         bool connected = false;         // Flaga statusu
         
-        // Stała dla Twojego urządzenia
+        // ID urządzenia
         const char* TARGET_VID_PID = "vid_0079&pid_0006";
 
+        // definicje przycisków i osi 
         const char* buttons[12] = {"1", "2", "3", "4", "start", "select", "L1", "L2", "R1", "R2", "analog_L", "analog_R"};
         const char* axis[2] = {"analog_L", "analog_R"};
+        const char* dpad[4] = {"up", "down", "left", "right"};
 
-        //mapping (jakaś tablica który bajt i jaka maska bitowa)
+        //mapping (tablica który bajt i jaka maska bitowa)
         ButtonMapping buttonsMapping[12] = {
             {6, 0x10}, // 1
             {6, 0x20}, // 2
@@ -75,8 +78,6 @@ class PadInput {
             {1, 2},
             {4, 5}
         };
-
-        const char* dpad[4] = {"up", "down", "left", "right"};
 
         ButtonState buttonStates[12];
         ButtonState dpadState[4];

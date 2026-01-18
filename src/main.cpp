@@ -28,6 +28,11 @@ int main(){
 
         pad.print();
 
+        ButtonState* buttonState = pad.getButtonState("1");
+        if(buttonState){
+            cout << "Button 1: " << buttonState->currentState << endl;
+        }
+
         Sleep(16);
     }
 

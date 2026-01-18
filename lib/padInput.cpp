@@ -224,8 +224,35 @@ void PadInput::print(){
         }
         cout << "          " << endl;
     }
-    cout << "          " << endl;
 
+    cout << endl;
+}
+
+ButtonState* PadInput::getButtonState(const char* buttonName){
+    for(int i=0; i<12; i++){
+        if(strcmp(buttonName, buttons[i]) == 0){
+            return &buttonStates[i];
+        }
+    }
+    return nullptr;
+}
+
+ButtonState* PadInput::getDpadState(const char* dpadName){
+    for(int i=0; i<4; i++){
+        if(strcmp(dpadName, dpad[i]) == 0){
+            return &dpadState[i];
+        }
+    }
+    return nullptr;
+}
+
+AxisState* PadInput::getAxisState(const char* axisName){
+    for(int i=0; i<2; i++){
+        if(strcmp(axisName, axis[i]) == 0){
+            return &axisStates[i];
+        }
+    }
+    return nullptr;
 }
 
 void PadInput::runMaskWizard() {
