@@ -171,38 +171,19 @@ void PadInput::update() {
         );
     }
 
-    // --- 2. OBSŁUGA PRZYCISKÓW I D-PADA ---
-    
-    // Pobieramy wartość Hat Switcha (zakładam, że jest na bajcie 5 - to standard)
-    // Jeśli u Ciebie jest na 6, zmień hatByte na 6.
-    // Bierzemy & 0x0F, bo interesują nas tylko 4 dolne bity (wartości 0-15)
+    // --- 2. OBSŁUGA D-PADA (Hat Switch) ---
     int hatByte = 6; 
     int hatValue = inputBuffer[hatByte] & 0x0F;
 
-    for(int i=0; i<16; i++){
-        bool isPressed = false;
+    this->dpadState[0].update(hatValue == 0 || hatValue == 1 || hatValue == 7); // UP
+    this->dpadState[1].update(hatValue == 4 || hatValue == 3 || hatValue == 5); // DOWN
+    this->dpadState[2].update(hatValue == 6 || hatValue == 5 || hatValue == 7); // LEFT
+    this->dpadState[3].update(hatValue == 2 || hatValue == 1 || hatValue == 3); // RIGHT
 
-        // Sprawdzamy, czy to przyciski D-Pada (indeksy 6, 7, 8, 9 w Twojej tablicy)
-        // 6=up, 7=down, 8=left, 9=right
-        if (i == 6) { // UP
-            isPressed = (hatValue == 0 || hatValue == 1 || hatValue == 7);
-        }
-        else if (i == 7) { // DOWN
-            isPressed = (hatValue == 4 || hatValue == 3 || hatValue == 5);
-        }
-        else if (i == 8) { // LEFT
-            isPressed = (hatValue == 6 || hatValue == 5 || hatValue == 7);
-        }
-        else if (i == 9) { // RIGHT
-            isPressed = (hatValue == 2 || hatValue == 1 || hatValue == 3);
-        }
-        else {
-            // --- STANDARDOWE PRZYCISKI (Reszta) ---
-            // Tutaj używamy Twojej starej metody z maską bitową
-            isPressed = (this->inputBuffer[this->buttonsMapping[i].byteIndex] & this->buttonsMapping[i].bitMask) != 0;
-        }
 
-        // Aktualizujemy stan
+    // --- 3. OBSŁUGA STANDARDOWYCH PRZYCISKÓW ---
+    for(int i=0; i<12; i++){
+        bool isPressed = (this->inputBuffer[this->buttonsMapping[i].byteIndex] & this->buttonsMapping[i].bitMask) != 0;
         this->buttonStates[i].update(isPressed);
     }
 }
@@ -213,6 +194,8 @@ void PadInput::print(){
         return;
     }
 
+    cout << "-------analogi--------" << endl;
+
     // Wyświetlanie analogów
     for(int i=0; i<2; i++){
         cout << this->axis[i] << ": ";
@@ -220,18 +203,29 @@ void PadInput::print(){
         cout << "          " << endl;
     }
 
-    cout << "------------------" << endl;
+    cout << "-------przyciski-------" << endl;
 
     // Wyświetlanie przycisków
-    for(int i=0; i<14; i++){ // Zmieniłem na 14, bo tyle masz nazw w tablicy
+    for(int i=0; i<12; i++){
         cout << this->buttons[i] << ": " << this->buttonStates[i].currentState;
         
-        // Opcjonalnie: Pokaż, że guzik jest trzymany
         if (this->buttonStates[i].sameStateCount > 10 && this->buttonStates[i].currentState) {
             cout << " (HOLD)";
         }
         cout << "          " << endl;
     }
+    
+    cout << "-------DPAD--------" << endl;
+    for(int i=0; i<4; i++){
+        cout << this->dpad[i] << ": " << this->dpadState[i].currentState;
+        
+        if (this->dpadState[i].sameStateCount > 10 && this->dpadState[i].currentState) {
+            cout << " (HOLD)";
+        }
+        cout << "          " << endl;
+    }
+    cout << "          " << endl;
+
 }
 
 void PadInput::runMaskWizard() {
@@ -254,8 +248,8 @@ void PadInput::runMaskWizard() {
     // Pobieramy stan początkowy, żeby mieć odniesienie
     update();
     
-    // Iterujemy po 14 przyciskach zdefiniowanych w tablicy nazw
-    for (int i = 0; i < 16; i++) {
+    // Iterujemy po 12 przyciskach zdefiniowanych w tablicy nazw
+    for (int i = 0; i < 12; i++) {
         // 1. Pobieramy bajt, który Ty zdefiniowałeś w kodzie
         int targetByte = buttonsMapping[i].byteIndex;
 
@@ -306,14 +300,14 @@ void PadInput::runMaskWizard() {
     // --- GENEROWANIE KODU ---
     cout << "\n\n=== GOTOWY KOD DO WKLEJENIA ===" << endl << endl;
 
-    cout << "ButtonMapping buttonsMapping[16] = {" << endl;
+    cout << "ButtonMapping buttonsMapping[12] = {" << endl;
     for (size_t i = 0; i < results.size(); i++) {
         cout << "    {" << results[i].byte << ", 0x" 
              << hex << uppercase << setfill('0') << setw(2) << results[i].mask 
              << "}, // " << buttons[i] << endl;
     }
-    // Dopełnienie do 16 elementów (jeśli tablica ma 16, a przycisków 14)
-    for (size_t i = results.size(); i < 16; i++) {
+    // Dopełnienie do 12 elementów (jeśli tablica ma 12, a przycisków 14?? no, buttons is 12 now)
+    for (size_t i = results.size(); i < 12; i++) {
         cout << "    {0, 0x00}, // (puste)" << endl;
     }
     cout << "};" << dec << endl;

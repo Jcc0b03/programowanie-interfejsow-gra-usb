@@ -52,21 +52,17 @@ class PadInput {
         // Stała dla Twojego urządzenia
         const char* TARGET_VID_PID = "vid_0079&pid_0006";
 
-        const char* buttons[16] = {"1", "2", "3", "4", "start", "select", "up", "down", "left", "right", "L1", "L2", "R1", "R2", "analog_L", "analog_R"};
+        const char* buttons[12] = {"1", "2", "3", "4", "start", "select", "L1", "L2", "R1", "R2", "analog_L", "analog_R"};
         const char* axis[2] = {"analog_L", "analog_R"};
 
         //mapping (jakaś tablica który bajt i jaka maska bitowa)
-        ButtonMapping buttonsMapping[16] = {
+        ButtonMapping buttonsMapping[12] = {
             {6, 0x10}, // 1
             {6, 0x20}, // 2
             {6, 0x40}, // 3
             {6, 0x80}, // 4
             {7, 0x20}, // start
             {7, 0x10}, // select
-            {6, 0x0F}, // up
-            {6, 0x0B}, // down
-            {6, 0x09}, // left
-            {6, 0x0D}, // right
             {7, 0x01}, // L1
             {7, 0x04}, // L2
             {7, 0x02}, // R1
@@ -80,6 +76,9 @@ class PadInput {
             {4, 5}
         };
 
-        ButtonState buttonStates[16];
+        const char* dpad[4] = {"up", "down", "left", "right"};
+
+        ButtonState buttonStates[12];
+        ButtonState dpadState[4];
         AxisState axisStates[2];
 };
